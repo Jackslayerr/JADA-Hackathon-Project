@@ -14,7 +14,6 @@ public class DateRow extends JPanel {
 
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPopupMenu addData = new JPopupMenu();
-        addData.add("Add Meal");
         addData.add("Add Exercise");
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JPanel center = new JPanel(new FlowLayout(FlowLayout.CENTER));
