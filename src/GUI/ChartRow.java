@@ -59,7 +59,7 @@ public class ChartRow extends JPanel {
         });
     }
 
-    // Sample line chart for reference
+
     private ChartPanel makeChart() {
         // x = hour of day (0-24), y = blood sugar
     XYSeries series = new XYSeries("Blood Sugar");
@@ -104,7 +104,7 @@ public class ChartRow extends JPanel {
         }
     }
 
-    // Draws an orange dashed line at the given hour
+
     public void addMealMarker(double hour, String label) {
         ValueMarker marker = new ValueMarker(hour);
         marker.setPaint(MEAL_COLOR);
