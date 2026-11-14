@@ -1,6 +1,7 @@
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.time.LocalDate;
 
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
@@ -17,5 +18,9 @@ public class TimeField extends JSpinner {
     public LocalTime getTime() {
         Date date = (Date) getValue();
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalTime().withSecond(0).withNano(0);
+    }
+
+    public void setTime(LocalTime time) {
+        setValue(Date.from(time.atDate(LocalDate.now()).atZone(ZoneId.systemDefault()).toInstant()));
     }
 }
