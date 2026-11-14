@@ -8,8 +8,11 @@ import java.awt.FlowLayout;
 import java.util.Locale;
 import javax.swing.*;
 
-public class MealListRow extends JPanel {
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
+public class MealListRow extends JPanel {
+    private final ChartRow chartRow;
     // User input
     private final JComboBox<String> mealType =
         new JComboBox<>(new String[] {
@@ -42,8 +45,10 @@ public class MealListRow extends JPanel {
 
     private final JLabel totalMacrosLabel = 
         new JLabel("Totals: 0 kcal | 0 g carbs | 0 g protein | 0 g fat");
-    
-    public MealListRow() {
+
+    public MealListRow(ChartRow chartRow) {
+        this.chartRow = chartRow;
+        setLayout(new BorderLayout(6, 6));
         setLayout(new BorderLayout(6, 6));
 
         //construct the dropdown, text field, and add button
@@ -111,6 +116,7 @@ public class MealListRow extends JPanel {
             if (index >= 0) {
                 mealModel.remove(index);
                 updateTotalMacros();
+                refreshMealMarkers();
             }
         });
 
@@ -123,7 +129,7 @@ public class MealListRow extends JPanel {
 
         if (description.isEmpty()) {
             JOptionPane.showMessageDialog(
-                this, "Enter a meal description first"
+                    this, "Enter a meal description first"
             );
             return;
         }
@@ -135,7 +141,7 @@ public class MealListRow extends JPanel {
         String amPm = (String) amPmDropdown.getSelectedItem();
 
         String mealTime = hour + ":" + minute + " " + amPm;
-        
+
         addButton.setEnabled(false);
         mealInput.setEnabled(false);
         mealType.setEnabled(false);
@@ -154,28 +160,29 @@ public class MealListRow extends JPanel {
                 String[] values = csv.split(",");
 
                 if (values.length != 4) {
-                    throw new IllegalArgumentException("Invalid nutrition response: " + csv); 
+                    throw new IllegalArgumentException("Invalid nutrition response: " + csv);
                 }
 
                 return new MealEntry(
-                    type,
-                    description,
-                    mealTime,
-                    Double.parseDouble(values[0].trim()),
-                    Double.parseDouble(values[1].trim()),
-                    Double.parseDouble(values[2].trim()),
-                    Double.parseDouble(values[3].trim())
+                        type,
+                        description,
+                        mealTime,
+                        Double.parseDouble(values[0].trim()),
+                        Double.parseDouble(values[1].trim()),
+                        Double.parseDouble(values[2].trim()),
+                        Double.parseDouble(values[3].trim())
 
                 );
             }
 
             @Override
-            protected void done () {
+            protected void done() {
                 try {
                     mealModel.addElement(get());
                     mealInput.setText("");
 
                     updateTotalMacros();
+                    refreshMealMarkers();
                     statusLabel.setText("Meal added (estimated values).");
                 } catch (Exception ex) {
                     statusLabel.setText("Couldn't analyze meal");
@@ -183,10 +190,10 @@ public class MealListRow extends JPanel {
                     Throwable cause = ex.getCause() == null ? ex : ex.getCause();
 
                     JOptionPane.showMessageDialog(
-                        MealListRow.this,
-                        cause.getMessage(),
-                        "Gemini error",
-                        JOptionPane.ERROR_MESSAGE
+                            MealListRow.this,
+                            cause.getMessage(),
+                            "Gemini error",
+                            JOptionPane.ERROR_MESSAGE
                     );
                 } finally {
                     addButton.setEnabled(true);
@@ -198,8 +205,20 @@ public class MealListRow extends JPanel {
                 }
             }
         }.execute();
-
     }
+        private void refreshMealMarkers() {
+            chartRow.clearMealMarkers();
+            for (int i = 0; i < mealModel.size(); i++) {
+                MealEntry entry = mealModel.get(i);
+                chartRow.addMealMarker(timeToHour(entry.time), entry.type);
+            }
+        }
+
+        // Turns "1:30 PM" into 13.5
+        private static double timeToHour(String time) {
+            LocalTime t = LocalTime.parse(time, DateTimeFormatter.ofPattern("h:mm a", Locale.US));
+            return t.getHour() + t.getMinute() / 60.0;
+        }
 
     //Calculate totals from all the meals in the list
     private void updateTotalMacros() {

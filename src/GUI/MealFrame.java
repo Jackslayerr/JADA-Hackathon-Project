@@ -11,12 +11,13 @@ public class MealFrame extends JFrame {
         // Stack everything vertically
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
-        add(new DateRow());      // Row 1: buttons + DATE + buttons
-        add(new ChartRow());     // Row 2: buttons + chart + buttons
-        add(new InputRow());     // Row 3: two text boxes
-        add(new TitleRow());     // Row 4: "Meals"
-        add(new MealListRow());  // Row 5: list of text
+        ChartRow chartRow = new ChartRow();
 
+        add(new DateRow());
+        add(chartRow);
+        add(new InputRow());
+        add(new TitleRow());
+        add(new MealListRow(chartRow));
         pack();
         setLocationRelativeTo(null); // center on screen
     }

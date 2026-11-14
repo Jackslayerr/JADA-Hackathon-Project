@@ -1,7 +1,5 @@
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
@@ -18,7 +16,18 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import java.io.IOException;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import org.jfree.chart.plot.ValueMarker;
+
 public class ChartRow extends JPanel {
+    private static final String DATA_FILE = "bsl_5min_moderate.csv";
+
+    private static final Color MEAL_COLOR = new Color(230, 126, 34);
+
+    private XYPlot plot;
 
     public ChartRow() {
         setLayout(new BorderLayout());
@@ -54,18 +63,12 @@ public class ChartRow extends JPanel {
     private ChartPanel makeChart() {
         // x = hour of day (0-24), y = blood sugar
     XYSeries series = new XYSeries("Blood Sugar");
-    series.add(7, 95);
-    series.add(8, 130);
-    series.add(9, 118);
-    series.add(12, 140);
-    series.add(15, 110);
-    series.add(18, 125);
-    series.add(21, 105);
+        loadReadings(series);
 
     JFreeChart chart = ChartFactory.createXYLineChart("Blood Sugar vs Time", "Hour of Day",
     "Blood Sugar (mg/dL)", new XYSeriesCollection(series));
 
-    XYPlot plot = chart.getXYPlot();
+        plot = chart.getXYPlot();
 
     NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
     xAxis.setRange(0, 24);                       // always show the full day
@@ -79,6 +82,43 @@ public class ChartRow extends JPanel {
     panel.setPreferredSize(new Dimension(500, 300));
     panel.setPopupMenu(null);
     return panel;
+    }
+
+    private void loadReadings(XYSeries series) {
+        try {
+            List<CsvExtrapolator.Record> records = CsvExtrapolator.readRecords(DATA_FILE);
+            if (records.isEmpty()) return;
+
+            String day = records.get(0).getDate();
+            for (CsvExtrapolator.Record r : records) {
+                if (!r.getDate().equals(day)) continue;
+                try {
+                    LocalTime t = LocalTime.parse(r.getTime());
+                    series.add(t.getHour() + t.getMinute() / 60.0, r.getBloodSugar());
+                } catch (DateTimeParseException e) {
+                    // skip bad rows
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Could not read " + DATA_FILE + ": " + e.getMessage());
+        }
+    }
+
+    // Draws an orange dashed line at the given hour
+    public void addMealMarker(double hour, String label) {
+        ValueMarker marker = new ValueMarker(hour);
+        marker.setPaint(MEAL_COLOR);
+        marker.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER,
+                1.0f, new float[] {6f, 4f}, 0f));
+        marker.setLabel(label);
+        marker.setLabelFont(new Font("SansSerif", Font.PLAIN, 11));
+        marker.setLabelPaint(MEAL_COLOR);
+        plot.addDomainMarker(marker);
+    }
+
+    // Erases all the meal lines
+    public void clearMealMarkers() {
+        plot.clearDomainMarkers();
     }
     
 }
