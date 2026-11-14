@@ -1,4 +1,3 @@
-import GUI.ChartRow;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
