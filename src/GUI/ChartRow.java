@@ -35,6 +35,7 @@ public class ChartRow extends JPanel {
     private static final Color MEAL_COLOR = new Color(230, 126, 34);
 
     private XYPlot plot;
+    private JFreeChart chart;
 
     public ChartRow(InputRow inputRow) throws IOException {
         this.inputRow = inputRow;
@@ -72,21 +73,26 @@ public class ChartRow extends JPanel {
     }
 
     private ChartPanel makeChart() throws IOException {
+       
         // x = hour of day (0-24), y = blood sugar
         XYSeries series = new XYSeries("Blood Sugar");
-        loadReadings(series);
-
-        JFreeChart chart = ChartFactory.createXYLineChart("Blood Sugar vs Time", "Time",
+    
+        List<CsvExtrapolator.Record> records = CsvExtrapolator.readRecords("C:\\JADA-Hackathon-Project\\csv\\bsl_5min_mild.csv");
+        for (CsvExtrapolator.Record record : records) {
+            LocalTime time = LocalTime.parse(record.getTime());
+            double numTime = time.getHour() + time.getMinute() / 60.0;
+            series.add(numTime, record.getBloodSugar());
+        }
+        
+        chart = ChartFactory.createXYLineChart("Blood Sugar vs Time", "Time",
                 "Blood Sugar (mg/dL)", new XYSeriesCollection(series));
 
-        XYPlot plot = chart.getXYPlot();
+        plot = chart.getXYPlot();
         xAxis = (NumberAxis) plot.getDomainAxis();
 
         xAxis.setRange(0, 24);          // full day to start with
         xAxis.setTickUnit(ticks(6));    // a label every 6 hours to start with
         updateRange();                  // then apply the time boxes
-
-        plot = chart.getXYPlot();
 
         ((NumberAxis) plot.getRangeAxis()).setAutoRangeIncludesZero(false);   // y-axis fits the data
 
@@ -97,6 +103,7 @@ public class ChartRow extends JPanel {
         panel.setPopupMenu(null);
         return panel;
     }
+    
 
     private void updateRange() {
         if (swapping) return;   // ignore the changes caused by the swap itself
@@ -158,6 +165,10 @@ public class ChartRow extends JPanel {
         } catch (IOException e) {
             System.err.println("Could not read " + DATA_FILE + ": " + e.getMessage());
         }
+    }
+
+    public JFreeChart getChart() {
+        return chart;
     }
 
     // Draws an orange dashed line at the given hour

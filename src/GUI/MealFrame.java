@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 public class MealFrame extends JFrame {
 
     public MealFrame() throws IOException {
-        setTitle("Meal Tracker");
+        setTitle("Glucose Tracker");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Stack everything vertically
@@ -16,15 +16,15 @@ public class MealFrame extends JFrame {
         InputRow inputRow = new InputRow();
         ChartRow chartRow = new ChartRow(inputRow);
 
-        add(new DateRow());      // Row 1: buttons + DATE + buttons
-        add(chartRow);     // Row 2: buttons + chart + buttons
-        add(inputRow);     // Row 3: two text boxes
-        add(new TitleRow());     // Row 4: "Meals"
-        add(new MealListRow());  // Row 5: list of text
+        // add(new DateRow());      // Row 1: buttons + DATE + buttons
+        // add(chartRow);     // Row 2: buttons + chart + buttons
+        // add(inputRow);     // Row 3: two text boxes
+        // add(new TitleRow());     // Row 4: "Meals"
+        // add(new MealListRow(chartRow));  // Row 5: list of text
 
-        add(new DateRow());
+        add(new DateRow(chartRow));
         add(chartRow);
-        add(new InputRow());
+        add(inputRow);
         add(new TitleRow());
         add(new MealListRow(chartRow));
         pack();

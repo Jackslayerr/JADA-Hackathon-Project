@@ -12,10 +12,13 @@ import javax.swing.text.MaskFormatter;
 public class InputRow extends JPanel {
     TimeField startTimeField = new TimeField();
     TimeField endTimeField = new TimeField();
+    
 
     public InputRow() {
         setLayout(new FlowLayout(FlowLayout.CENTER));
         
+        startTimeField.setTime(LocalTime.of(0, 0));
+        endTimeField.setTime(LocalTime.of(23, 59));
 
         add(new JLabel("Start Time"));
         add(startTimeField);

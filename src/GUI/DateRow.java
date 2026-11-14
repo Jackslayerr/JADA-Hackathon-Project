@@ -9,24 +9,27 @@ import javax.swing.JPopupMenu;
 
 public class DateRow extends JPanel {
 
-    public DateRow() {
+    public DateRow(ChartRow chartRow) {
         setLayout(new BorderLayout());
 
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JPopupMenu addData = new JPopupMenu();
-        addData.add("Add Exercise");
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JPanel center = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-        JButton addDataButton = new JButton("+");
-        addDataButton.addActionListener(e -> {
-            addData.show(addDataButton, 0, 0);
-        });
-        left.add(addDataButton);
+       
         center.add(new JButton("<"));
         center.add(new JLabel("11/14/2026"));
         center.add(new JButton(">"));
-        right.add(new JButton("\u2912"));
+        JButton exportBtn = new JButton("\u2912");
+        exportBtn.addActionListener(e -> {
+            try {
+                ChartExport.exportToPdf(chartRow.getChart(), "chart.pdf", 800, 400);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+        right.add(exportBtn);
+        
 
         add(left, BorderLayout.WEST);
         add(right, BorderLayout.EAST);
