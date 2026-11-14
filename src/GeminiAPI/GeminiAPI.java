@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GeminiAPI {
-    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/modelsgemini-3.1-flash-lite:generateContent";
+    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent";
 
     public static String analyzeMeal (String mealDescription) throws Exception {
         //Get the API Key from enviroment variable
