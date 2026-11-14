@@ -1,10 +1,18 @@
 import javax.swing.SwingUtilities;
 import GeminiAPI.GeminiAPI;
+
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MealFrame().setVisible(true));
+        SwingUtilities.invokeLater(() -> {
+            try {
+                new MealFrame().setVisible(true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
 
 
         Scanner scanner = new Scanner(System.in);

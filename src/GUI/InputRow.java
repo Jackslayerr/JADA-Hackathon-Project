@@ -1,6 +1,7 @@
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.text.ParseException;
+import java.time.LocalTime;
 
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -9,23 +10,32 @@ import javax.swing.JTextField;
 import javax.swing.text.MaskFormatter;
 
 public class InputRow extends JPanel {
-    private TimeField timeField = new TimeField();
+    TimeField startTimeField = new TimeField();
+    TimeField endTimeField = new TimeField();
 
     public InputRow() {
         setLayout(new FlowLayout(FlowLayout.CENTER));
         
 
         add(new JLabel("Start Time"));
-        //add(startField);
-        TimeField startTimeField = new TimeField();
         add(startTimeField);
         add(new JLabel("-----"));
-        //add(endField);
-        TimeField endTimeField = new TimeField();
         add(endTimeField);
         add(new JLabel("End Time"));
 
         setMaximumSize(new Dimension(Integer.MAX_VALUE, getPreferredSize().height));
 
+    }
+    public LocalTime getStartTime() {
+        return startTimeField.getTime();
+    }
+    public LocalTime getEndTime() {
+        return endTimeField.getTime();
+    }
+    public TimeField getStartTimeField() {
+        return startTimeField;
+    }
+    public TimeField getEndTimeField() {
+        return endTimeField;
     }
 }
