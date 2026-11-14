@@ -9,31 +9,23 @@ import javax.swing.JTextField;
 import javax.swing.text.MaskFormatter;
 
 public class InputRow extends JPanel {
-    private JFormattedTextField startField = makeDateField();
-    private JFormattedTextField endField = makeDateField();
+    private TimeField timeField = new TimeField();
 
     public InputRow() {
         setLayout(new FlowLayout(FlowLayout.CENTER));
         
 
         add(new JLabel("Start Time"));
-        add(startField);
+        //add(startField);
+        TimeField startTimeField = new TimeField();
+        add(startTimeField);
         add(new JLabel("-----"));
-        add(endField);
+        //add(endField);
+        TimeField endTimeField = new TimeField();
+        add(endTimeField);
         add(new JLabel("End Time"));
 
         setMaximumSize(new Dimension(Integer.MAX_VALUE, getPreferredSize().height));
 
-    }
-        private JFormattedTextField makeDateField() {
-        try {
-            MaskFormatter mask = new MaskFormatter("##/##/####");
-            mask.setPlaceholderCharacter('_');
-            JFormattedTextField field = new JFormattedTextField(mask);
-            field.setColumns(6);
-            return field;
-        } catch (ParseException e) {
-            return new JFormattedTextField(); // only happens if the mask text is invalid
-        }
     }
 }

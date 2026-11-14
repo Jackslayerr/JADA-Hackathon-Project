@@ -1,4 +1,3 @@
-package GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -12,7 +11,12 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 public class ChartRow extends JPanel {
 
@@ -48,18 +52,33 @@ public class ChartRow extends JPanel {
 
     // Sample line chart for reference
     private ChartPanel makeChart() {
-        DefaultCategoryDataset data = new DefaultCategoryDataset();
-        data.addValue(1800, "A1C", "Mon");
-        data.addValue(2100, "Calories", "Tue");
-        data.addValue(1950, "Calories", "Wed");
-        data.addValue(2300, "Calories", "Thu");
-        data.addValue(2000, "Calories", "Fri");
+        // x = hour of day (0-24), y = blood sugar
+    XYSeries series = new XYSeries("Blood Sugar");
+    series.add(7, 95);
+    series.add(8, 130);
+    series.add(9, 118);
+    series.add(12, 140);
+    series.add(15, 110);
+    series.add(18, 125);
+    series.add(21, 105);
 
-        JFreeChart chart = ChartFactory.createLineChart("A1C vs Time", "Time", "A1C", data);
-        ChartPanel panel = new ChartPanel(chart);
-        panel.setPreferredSize(new Dimension(500, 300));
-        panel.setPopupMenu(null);
-        return panel;
+    JFreeChart chart = ChartFactory.createXYLineChart("Blood Sugar vs Time", "Hour of Day",
+    "Blood Sugar (mg/dL)", new XYSeriesCollection(series));
+
+    XYPlot plot = chart.getXYPlot();
+
+    NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
+    xAxis.setRange(0, 24);                       // always show the full day
+    xAxis.setTickUnit(new NumberTickUnit(2));    // label every 2 hours
+
+    ((NumberAxis) plot.getRangeAxis()).setAutoRangeIncludesZero(false);   // y-axis fits the data
+
+    chart.removeLegend();   // only one line, so no legend
+
+    ChartPanel panel = new ChartPanel(chart);
+    panel.setPreferredSize(new Dimension(500, 300));
+    panel.setPopupMenu(null);
+    return panel;
     }
     
 }
