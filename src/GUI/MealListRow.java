@@ -19,6 +19,15 @@ public class MealListRow extends JPanel {
     private final JTextField mealInput = new JTextField(22);
     private final JButton addButton = new JButton ("Add and Analyze");
 
+    private final JComboBox<String> hourDropdown =
+        new JComboBox<>();
+
+    private final JComboBox<String> minuteDropdown =
+        new JComboBox<>();
+
+    private final JComboBox<String> amPmDropdown =
+        new JComboBox<>(new String[] {"AM", "PM"});
+
     //Changing list of meals
     private final DefaultListModel<MealEntry> mealModel =
         new DefaultListModel();
@@ -40,8 +49,32 @@ public class MealListRow extends JPanel {
         //construct the dropdown, text field, and add button
         JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
+        // Hours 1 through 12
+        for (int hour = 1; hour <= 12; hour++) {
+            hourDropdown.addItem(String.valueOf(hour));
+        }
+
+        // Minutes 00 through 59
+        for (int minute = 0; minute < 60; minute++) {
+            minuteDropdown.addItem(
+                String.format("%02d", minute)
+            );
+        }
+
+        // Default time
+        hourDropdown.setSelectedItem("12");
+        minuteDropdown.setSelectedItem("00");
+        amPmDropdown.setSelectedItem("PM");
+        
         inputPanel.add(mealType);
         inputPanel.add(mealInput);
+
+        inputPanel.add(new JLabel("Time:"));
+        inputPanel.add(hourDropdown);
+        inputPanel.add(new JLabel(":"));
+        inputPanel.add(minuteDropdown);
+        inputPanel.add(amPmDropdown);
+
         inputPanel.add(addButton);
 
         add(inputPanel, BorderLayout.NORTH);
@@ -96,10 +129,19 @@ public class MealListRow extends JPanel {
         }
 
         String type = (String) mealType.getSelectedItem();
+
+        String hour = (String) hourDropdown.getSelectedItem();
+        String minute = (String) minuteDropdown.getSelectedItem();
+        String amPm = (String) amPmDropdown.getSelectedItem();
+
+        String mealTime = hour + ":" + minute + " " + amPm;
         
         addButton.setEnabled(false);
         mealInput.setEnabled(false);
         mealType.setEnabled(false);
+        hourDropdown.setEnabled(false);
+        minuteDropdown.setEnabled(false);
+        amPmDropdown.setEnabled(false);
         statusLabel.setText("Analyzing your meal...");
 
         //Runs API request without needed to freeze Swing
@@ -118,6 +160,7 @@ public class MealListRow extends JPanel {
                 return new MealEntry(
                     type,
                     description,
+                    mealTime,
                     Double.parseDouble(values[0].trim()),
                     Double.parseDouble(values[1].trim()),
                     Double.parseDouble(values[2].trim()),
@@ -149,6 +192,9 @@ public class MealListRow extends JPanel {
                     addButton.setEnabled(true);
                     mealInput.setEnabled(true);
                     mealType.setEnabled(true);
+                    hourDropdown.setEnabled(true);
+                    minuteDropdown.setEnabled(true);
+                    amPmDropdown.setEnabled(true);
                 }
             }
         }.execute();
@@ -184,17 +230,19 @@ public class MealListRow extends JPanel {
 
         final String type;
         final String description;
+        final String time;
         final double calories;
         final double carbs;
         final double protein;
         final double fat;
 
-        MealEntry(String type, String description,
+        MealEntry(String type, String description, String time,
                   double calories, double carbs,
                   double protein, double fat) {
 
             this.type = type;
             this.description = description;
+            this.time = time;
             this.calories = calories;
             this.carbs = carbs;
             this.protein = protein;
@@ -205,8 +253,8 @@ public class MealListRow extends JPanel {
         public String toString() {
             return String.format(
                 Locale.US,
-                "%s — %s | %.0f kcal, %.1f g carbs, %.1f g protein, %.1f g fat",
-                type, description, calories, carbs, protein, fat
+                "%s - %s — %s | %.0f kcal, %.1f g carbs, %.1f g protein, %.1f g fat",
+                time, type, description, calories, carbs, protein, fat
             );
         }
     }
