@@ -47,15 +47,16 @@ public class ChartRow extends JPanel {
     // Sample line chart for reference
     private ChartPanel makeChart() {
         DefaultCategoryDataset data = new DefaultCategoryDataset();
-        data.addValue(1800, "Calories", "Mon");
+        data.addValue(1800, "A1C", "Mon");
         data.addValue(2100, "Calories", "Tue");
         data.addValue(1950, "Calories", "Wed");
         data.addValue(2300, "Calories", "Thu");
         data.addValue(2000, "Calories", "Fri");
 
-        JFreeChart chart = ChartFactory.createLineChart("Calories", "Day", "Calories", data);
+        JFreeChart chart = ChartFactory.createLineChart("A1C vs Time", "Time", "A1C", data);
         ChartPanel panel = new ChartPanel(chart);
         panel.setPreferredSize(new Dimension(500, 300));
+        panel.setPopupMenu(null);
         return panel;
     }
     
