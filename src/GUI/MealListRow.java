@@ -162,7 +162,7 @@ public class MealListRow extends JPanel {
         double protein = 0;
         double fat = 0;
 
-        for (int i = 0, i < mealModel.size(); i ++) {
+        for (int i = 0; i < mealModel.size(); i++) {
             MealEntry entry = mealModel.get(i);
 
             calories += entry.calories;
