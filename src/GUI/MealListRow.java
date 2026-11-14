@@ -55,7 +55,7 @@ public class MealListRow extends JPanel {
         }
 
         // Minutes 00 through 59
-        for (int minute = 0; minute < 60; minute++) {
+        for (int minute = 0; minute < 60; minute = minute + 10) {
             minuteDropdown.addItem(
                 String.format("%02d", minute)
             );
