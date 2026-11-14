@@ -6,68 +6,55 @@ import java.util.List;
 
 public class CsvExtrapolator
 {
-    public static List<DataPoint> readAndExtrapolate(String filePath, int stepsToExtrapolate) throws IOException
-    {
-        List<DataPoint> points = new ArrayList<>();
+    public static class Record {
+        private final String date;
+        private final String time;
+        private final double bloodSugar;
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath)))
-        {
+        public Record(String date, String time, double bloodSugar) {
+            this.date = date;
+            this.time = time;
+            this.bloodSugar = bloodSugar;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public String getTime() {
+            return time;
+        }
+
+        public double getBloodSugar() {
+            return bloodSugar;
+        }
+    }
+
+    public static List<Record> readRecords(String filePath) throws IOException {
+        List<Record> records = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
-            while ((line = br.readLine()) != null)
-            {
+            while ((line = br.readLine()) != null) {
                 line = line.trim();
                 if (line.isEmpty()) continue;
 
-                String[] parts = line.split("'");
+                String[] parts = line.split(",");
+                if (parts.length < 3) continue;
 
-                if (parts.length < 2) continue;
+                try {
+                    // Read variables directly as strings and double from CSV
+                    String date = parts[0].trim();
+                    String time = parts[1].trim();
+                    double bloodSugar = Double.parseDouble(parts[2].trim());
 
-                try
-                {
-                    double x = Double.parseDouble(parts[0].trim());
-                    double y = Double.parseDouble(parts[1].trim());
-                    points.add(new DataPoint(x,y,false));
-                }
-                catch (NumberFormatException e)
-                {
-                    // Skips header rows and/or improper lines
+                    records.add(new Record(date, time, bloodSugar));
+                } catch (NumberFormatException e) {
+                    // Automatically skips header rows or malformed numeric rows
                 }
             }
         }
 
-        if (points.size() < 2)
-        {
-            throw new IllegalArgumentException("CSV must contain at least 2 valid numeric rows to extrapolate.");
-        }
-
-        int n = points.size();
-        double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
-
-        for (DataPoint p : points)
-        {
-            sumX += p.x;
-            sumY += p.y;
-            sumXY += p.x * p.y;
-            sumX2 += p.x * p.x;
-        }
-
-        double slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-        double intercept = (sumY - slope * sumX) / n;
-
-        // Determine step interval from the last two X values
-        double lastX = points.get(n - 1).x;
-        double stepSize = lastX - points.get(n - 2).x;
-        if (stepSize <= 0) stepSize = 1.0;
-
-        // Generate extrapolated points
-        for (int i = 1; i <= stepsToExtrapolate; i++) {
-            double futureX = lastX + (i * stepSize);
-            double futureY = (slope * futureX) + intercept;
-            points.add(new DataPoint(futureX, futureY, true));
-        }
-
-        return points;
+        return records;
     }
-
-
 }
