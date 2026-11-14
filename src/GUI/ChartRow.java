@@ -1,6 +1,4 @@
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.IOException;
@@ -21,10 +19,22 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import java.io.IOException;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import org.jfree.chart.plot.ValueMarker;
+
 public class ChartRow extends JPanel {
     private InputRow inputRow;
     private NumberAxis xAxis;
     private boolean swapping = false;   // stops the swap from triggering itself
+
+    private static final String DATA_FILE = "bsl_5min_moderate.csv";
+
+    private static final Color MEAL_COLOR = new Color(230, 126, 34);
+
+    private XYPlot plot;
 
     public ChartRow(InputRow inputRow) throws IOException {
         this.inputRow = inputRow;
@@ -64,13 +74,8 @@ public class ChartRow extends JPanel {
     private ChartPanel makeChart() throws IOException {
         // x = hour of day (0-24), y = blood sugar
         XYSeries series = new XYSeries("Blood Sugar");
-        List<CsvExtrapolator.Record> records = CsvExtrapolator.readRecords("C:\\JADA-Hackathon-Project\\csv\\bsl_5min_mild.csv");
-        for (CsvExtrapolator.Record record : records) {
-            LocalTime time = LocalTime.parse(record.getTime());
-            double numTime = time.getHour() + time.getMinute() / 60.0;
-            series.add(numTime, record.getBloodSugar());
-        }
-        
+        loadReadings(series);
+
         JFreeChart chart = ChartFactory.createXYLineChart("Blood Sugar vs Time", "Time",
                 "Blood Sugar (mg/dL)", new XYSeriesCollection(series));
 
@@ -80,6 +85,8 @@ public class ChartRow extends JPanel {
         xAxis.setRange(0, 24);          // full day to start with
         xAxis.setTickUnit(ticks(6));    // a label every 6 hours to start with
         updateRange();                  // then apply the time boxes
+
+        plot = chart.getXYPlot();
 
         ((NumberAxis) plot.getRangeAxis()).setAutoRangeIncludesZero(false);   // y-axis fits the data
 
@@ -132,4 +139,42 @@ public class ChartRow extends JPanel {
             }
         };
     }
+
+    private void loadReadings(XYSeries series) {
+        try {
+            List<CsvExtrapolator.Record> records = CsvExtrapolator.readRecords(DATA_FILE);
+            if (records.isEmpty()) return;
+
+            String day = records.get(0).getDate();
+            for (CsvExtrapolator.Record r : records) {
+                if (!r.getDate().equals(day)) continue;
+                try {
+                    LocalTime t = LocalTime.parse(r.getTime());
+                    series.add(t.getHour() + t.getMinute() / 60.0, r.getBloodSugar());
+                } catch (DateTimeParseException e) {
+                    // skip bad rows
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Could not read " + DATA_FILE + ": " + e.getMessage());
+        }
+    }
+
+    // Draws an orange dashed line at the given hour
+    public void addMealMarker(double hour, String label) {
+        ValueMarker marker = new ValueMarker(hour);
+        marker.setPaint(MEAL_COLOR);
+        marker.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER,
+                1.0f, new float[] {6f, 4f}, 0f));
+        marker.setLabel(label);
+        marker.setLabelFont(new Font("SansSerif", Font.PLAIN, 11));
+        marker.setLabelPaint(MEAL_COLOR);
+        plot.addDomainMarker(marker);
+    }
+
+    // Erases all the meal lines
+    public void clearMealMarkers() {
+        plot.clearDomainMarkers();
+    }
+    
 }

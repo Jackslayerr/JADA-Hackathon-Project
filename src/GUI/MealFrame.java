@@ -22,6 +22,11 @@ public class MealFrame extends JFrame {
         add(new TitleRow());     // Row 4: "Meals"
         add(new MealListRow());  // Row 5: list of text
 
+        add(new DateRow());
+        add(chartRow);
+        add(new InputRow());
+        add(new TitleRow());
+        add(new MealListRow(chartRow));
         pack();
         setLocationRelativeTo(null); // center on screen
     }
