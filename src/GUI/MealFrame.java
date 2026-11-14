@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 public class MealFrame extends JFrame {
 
     public MealFrame() throws IOException {
-        setTitle("Glucose Tracker");
+        setTitle("Blood Sugar Tracker");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Stack everything vertically
