@@ -1,3 +1,5 @@
+package GUI;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
@@ -81,4 +83,3 @@ public class ChartRow extends JPanel {
     }
     
 }
-
