@@ -50,6 +50,23 @@ public class CsvExtrapolator
             sumXY += p.x * p.y;
             sumX2 += p.x * p.x;
         }
+
+        double slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        double intercept = (sumY - slope * sumX) / n;
+
+        // Determine step interval from the last two X values
+        double lastX = points.get(n - 1).x;
+        double stepSize = lastX - points.get(n - 2).x;
+        if (stepSize <= 0) stepSize = 1.0;
+
+        // Generate extrapolated points
+        for (int i = 1; i <= stepsToExtrapolate; i++) {
+            double futureX = lastX + (i * stepSize);
+            double futureY = (slope * futureX) + intercept;
+            points.add(new DataPoint(futureX, futureY, true));
+        }
+
+        return points;
     }
 
 
