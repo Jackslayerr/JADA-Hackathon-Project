@@ -1,4 +1,4 @@
-package src.GeminiAPI;
+package GeminiAPI;
 
 import java.net.URI;
 import java.net.http.HttpClient;
